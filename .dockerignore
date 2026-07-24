@@ -1,0 +1,11 @@
+.gradle
+.idea
+build
+!build/
+!build/libs/
+!build/libs/*.jar
+out
+*.iml
+.git
+.gitignore
+README.md

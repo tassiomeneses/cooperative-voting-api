@@ -1,0 +1,117 @@
+spring:
+  application:
+    name: cooperative-voting-api
+  cache:
+    type: ${SPRING_CACHE_TYPE:caffeine}
+    cache-names: associateEligibility
+    redis:
+      time-to-live: ${USER_INFO_CACHE_TTL:30s}
+      cache-null-values: false
+      use-key-prefix: true
+      key-prefix: cooperative-voting
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${SPRING_DATA_REDIS_PASSWORD:}
+      timeout: ${SPRING_DATA_REDIS_TIMEOUT:1s}
+      repositories:
+        enabled: false
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/cooperative_voting}
+    username: ${SPRING_DATASOURCE_USERNAME:cooperative_voting}
+    password: ${SPRING_DATASOURCE_PASSWORD:cooperative_voting}
+    hikari:
+      maximum-pool-size: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:10}
+      minimum-idle: ${SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE:5}
+      connection-timeout: ${SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT_MS:1000}
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      client:
+        config:
+          user-info:
+            connectTimeout: ${USER_INFO_CONNECT_TIMEOUT_MS:500}
+            readTimeout: ${USER_INFO_READ_TIMEOUT_MS:1500}
+            loggerLevel: none
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  tomcat:
+    threads:
+      max: ${SERVER_TOMCAT_THREADS_MAX:200}
+      min-spare: ${SERVER_TOMCAT_THREADS_MIN_SPARE:20}
+    accept-count: ${SERVER_TOMCAT_ACCEPT_COUNT:100}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info}
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_API_DOCS_ENABLED:true}
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:true}
+    path: /swagger-ui.html
+
+security:
+  api-key:
+    enabled: ${API_KEY_ENABLED:false}
+    header-name: ${API_KEY_HEADER_NAME:X-API-Key}
+    value: ${API_KEY_VALUE:}
+  identity-hash:
+    pepper: ${IDENTITY_HASH_PEPPER:local-development-pepper-change-me}
+    require-custom-pepper: ${IDENTITY_HASH_REQUIRE_CUSTOM_PEPPER:false}
+
+integrations:
+  user-info:
+    base-url: ${USER_INFO_BASE_URL:https://user-info.herokuapp.com}
+    retry:
+      period: ${USER_INFO_RETRY_PERIOD:100ms}
+      max-period: ${USER_INFO_RETRY_MAX_PERIOD:300ms}
+      max-attempts: ${USER_INFO_RETRY_MAX_ATTEMPTS:3}
+    cache:
+      ttl: ${USER_INFO_CACHE_TTL:30s}
+      maximum-size: ${USER_INFO_CACHE_MAXIMUM_SIZE:10000}
+
+mobile:
+  callback-base-url: ${MOBILE_CALLBACK_BASE_URL:}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userInfo:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: ${USER_INFO_CIRCUIT_BREAKER_SLIDING_WINDOW_SIZE:10}
+        minimumNumberOfCalls: ${USER_INFO_CIRCUIT_BREAKER_MINIMUM_CALLS:5}
+        failureRateThreshold: ${USER_INFO_CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD:50}
+        waitDurationInOpenState: ${USER_INFO_CIRCUIT_BREAKER_OPEN_STATE_WAIT:10s}
+        permittedNumberOfCallsInHalfOpenState: ${USER_INFO_CIRCUIT_BREAKER_HALF_OPEN_CALLS:2}
+  timelimiter:
+    instances:
+      userInfo:
+        timeoutDuration: ${USER_INFO_CIRCUIT_BREAKER_TIMEOUT:3s}
+        cancelRunningFuture: true
+
+logging:
+  level:
+    br.com.cooperativevoting.voting.adapter.out.client.userinfo: ${USER_INFO_LOG_LEVEL:INFO}

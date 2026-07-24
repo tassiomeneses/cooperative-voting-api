@@ -1,0 +1,89 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    command: ["postgres", "-c", "max_connections=200", "-c", "shared_buffers=256MB"]
+    environment:
+      POSTGRES_DB: cooperative_voting
+      POSTGRES_USER: cooperative_voting
+      POSTGRES_PASSWORD: cooperative_voting
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cooperative_voting -d cooperative_voting"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user-info-mock:
+    image: wiremock/wiremock:3.13.1
+    command: ["--global-response-templating", "--disable-request-logging", "--no-request-journal", "--container-threads", "300"]
+    ports:
+      - "${USER_INFO_MOCK_HOST_PORT:-8089}:8080"
+    volumes:
+      - ./performance/wiremock:/home/wiremock:ro
+
+  api:
+    build:
+      context: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      user-info-mock:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cooperative_voting
+      SPRING_DATASOURCE_USERNAME: cooperative_voting
+      SPRING_DATASOURCE_PASSWORD: cooperative_voting
+      IDENTITY_HASH_PEPPER: local-docker-pepper-change-me
+      USER_INFO_BASE_URL: http://user-info-mock:8080
+      SPRING_CACHE_TYPE: ${SPRING_CACHE_TYPE:-caffeine}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      USER_INFO_CACHE_TTL: 5m
+      USER_INFO_LOG_LEVEL: WARN
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_CIRCUITBREAKER_RESILIENCE4J: ERROR
+    ports:
+      - "${API_HOST_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  k6:
+    image: grafana/k6:0.54.0
+    profiles:
+      - performance
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://api:8080
+      RATE: ${K6_RATE:-100}
+      DURATION: ${K6_DURATION:-1m}
+      PRE_ALLOCATED_VUS: ${K6_PRE_ALLOCATED_VUS:-100}
+      MAX_VUS: ${K6_MAX_VUS:-300}
+      P95_THRESHOLD_MS: ${K6_P95_THRESHOLD_MS:-1200}
+      P99_THRESHOLD_MS: ${K6_P99_THRESHOLD_MS:-3000}
+    volumes:
+      - ./performance/k6:/scripts:ro
+      - ./build/performance:/results
+    command: ["run", "--summary-export", "/results/k6-summary.json", "/scripts/voting-flow.js"]
+
+volumes:
+  postgres-data:
