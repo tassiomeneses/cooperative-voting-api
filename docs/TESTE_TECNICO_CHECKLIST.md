@@ -19,7 +19,7 @@ Este arquivo confere o projeto contra o enunciado da avaliacao tecnica.
 | Comunicacao backend/mobile via JSON de tela | OK | Adapter `/v1/mobile` |
 | Tela `FORMULARIO` | OK | `/v1/mobile/pautas/nova`, `/sessao/nova`, `/voto/identificacao`, `/resultado` |
 | Tela `SELECAO` | OK | `/v1/mobile/pautas/{id}/voto/opcoes` |
-| Campos `TEXTO`, `INPUT_TEXTO`, `INPUT_NUMERO` | OK | DTOs mobile e testes `MobileVotingScreenControllerTest` |
+| Campos `TEXTO`, `INPUT_TEXTO`, `INPUT_NUMERO`, `INPUT_DATA` | OK | DTOs mobile e teste `MobileScreenResponseTest` |
 | Botoes com `texto`, `url` e `body` | OK | `MobileScreenButtonResponse` |
 | Itens de selecao com `texto`, `url` e `body` | OK | `MobileScreenItemResponse.selection(...)` |
 | URL de callback configuravel | OK | `MOBILE_CALLBACK_BASE_URL` |

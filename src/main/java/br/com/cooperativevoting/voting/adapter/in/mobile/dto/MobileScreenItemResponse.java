@@ -41,6 +41,10 @@ public record MobileScreenItemResponse(
         return new MobileScreenItemResponse(MobileScreenItemType.INPUT_NUMERO, id, title, value, null, null, null);
     }
 
+    public static MobileScreenItemResponse inputDate(String id, String title, String value) {
+        return new MobileScreenItemResponse(MobileScreenItemType.INPUT_DATA, id, title, value, null, null, null);
+    }
+
     public static MobileScreenItemResponse selection(String text, String url, Map<String, Object> body) {
         return new MobileScreenItemResponse(null, null, null, null, text, url, body);
     }

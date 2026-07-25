@@ -364,6 +364,17 @@ Esses endpoints retornam diretamente objetos de tela, sem o envelope `success/da
 | `POST` | `/v1/mobile/votos` | `FORMULARIO` | Registra voto e retorna confirmação |
 | `GET` ou `POST` | `/v1/mobile/pautas/{id}/resultado` | `FORMULARIO` | Tela com resultado da votação |
 
+Tipos de item suportados pelo contrato mobile:
+
+| Tipo | Uso |
+|---|---|
+| `TEXTO` | Texto informativo sem entrada do usuario |
+| `INPUT_TEXTO` | Campo textual preenchido pelo usuario |
+| `INPUT_NUMERO` | Campo numerico preenchido pelo usuario |
+| `INPUT_DATA` | Campo de data no formato esperado pelo app, por exemplo `01/01/2000` |
+
+O fluxo de votacao usa apenas os campos necessarios para o dominio. `INPUT_DATA` fica implementado no DTO do contrato e coberto por teste de serializacao para manter aderencia completa ao Anexo 1 sem adicionar dado artificial ao caso de uso.
+
 ### Endpoints REST Diretos De Apoio
 
 | Método | Endpoint | Descrição |
@@ -722,6 +733,7 @@ build/performance/k6-summary.json
 - Testes unitários de use cases com Mockito.
 - Controller tests com MockMvc standalone.
 - Controller tests do contrato mobile `FORMULARIO` e `SELECAO`.
+- Teste dedicado de serializacao do contrato mobile cobrindo `TEXTO`, `INPUT_TEXTO`, `INPUT_NUMERO`, `INPUT_DATA`, botoes e itens de selecao.
 - Integration test end-to-end usando somente `/v1/mobile`, incluindo criação de pauta, abertura de sessão, seleção de voto, registro e resultado.
 - Testes da integração `user-info` com WireMock.
 - Repository tests com PostgreSQL real via Testcontainers.
