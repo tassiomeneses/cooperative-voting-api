@@ -273,7 +273,7 @@ Subir API, PostgreSQL, Redis e mock local do `user-info`:
 docker compose up --build
 ```
 
-No Docker, a API chama o WireMock local em vez do `user-info` real. Redis também sobe no Compose e pode ser habilitado com `SPRING_CACHE_TYPE=redis`, mas o padrão continua Caffeine porque o fluxo de votação usa CPFs únicos e cache distribuído adicionaria uma ida remota sem ganho relevante nesse cenário.
+No Docker, a API chama o WireMock local em vez do `user-info` real e usa Redis como cache distribuído por padrão. Caffeine continua disponível como fallback para execução local fora do Docker, quando não faz sentido exigir Redis instalado.
 
 Para o Compose de performance, o WireMock roda sem request journal, o retry do `user-info` fica reduzido e os timeouts ficam mais folgados. Essa configuração evita que o mock local ou retries em cascata virem o gargalo do teste de carga.
 
@@ -297,7 +297,7 @@ Variáveis de ambiente relevantes:
 | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5432/cooperative_voting` | URL do PostgreSQL |
 | `SPRING_DATASOURCE_USERNAME` | `cooperative_voting` | Usuário do banco |
 | `SPRING_DATASOURCE_PASSWORD` | `cooperative_voting` | Senha do banco |
-| `SPRING_CACHE_TYPE` | `caffeine` | Tipo de cache: `caffeine` local ou `redis` distribuído |
+| `SPRING_CACHE_TYPE` | `caffeine` na aplicação, `redis` no Docker Compose | Tipo de cache: `caffeine` local ou `redis` distribuído |
 | `SPRING_DATA_REDIS_HOST` | `localhost` | Host do Redis |
 | `SPRING_DATA_REDIS_PORT` | `6379` | Porta do Redis |
 | `SPRING_DATA_REDIS_PASSWORD` | vazio | Senha do Redis |
@@ -834,7 +834,7 @@ Otimizações já aplicadas:
 - Sem lock pessimista em pauta para cada voto.
 - Índice `(agenda_id, choice)` para auditorias e consultas analíticas futuras.
 - Consulta de resultado sem agregação sobre a tabela de votos.
-- Cache da elegibilidade do associado com Caffeine por padrão e Redis habilitável em múltiplas réplicas.
+- Cache da elegibilidade do associado com Redis no Docker Compose e Caffeine como fallback local fora do Docker.
 - Logs de integração podem ser reduzidos para `WARN` durante carga para evitar I/O desnecessário.
 - Timeouts curtos na integração externa.
 - `spring.jpa.open-in-view=false`.

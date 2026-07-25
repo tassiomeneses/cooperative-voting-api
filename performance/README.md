@@ -58,7 +58,7 @@ docker compose -f docker-compose.yml -f docker-compose.performance.yml --profile
 - O setup do k6 busca as telas `FORMULARIO` de cadastro e sessão, extrai a pauta pelo callback retornado e registra votos pelo callback mobile.
 - O WireMock roda sem request journal no Compose de performance. Essa decisão evita que o mock local seja o gargalo artificial do teste.
 - O Docker usa retry igual a `1` e timeouts maiores para o `user-info`. Em carga local, retry agressivo multiplica chamadas e abre o circuit breaker por lentidão do mock, não por falha da regra de votação.
-- Redis fica disponível no Docker, mas o cenário padrão usa Caffeine. Como os CPFs do teste são únicos, Redis adicionaria ida remota sem reaproveitamento relevante.
+- Redis é usado por padrão no Docker Compose para representar melhor um cenário com múltiplas réplicas. Caffeine segue disponível para execução local simples fora do Docker.
 - O registro de voto evita leitura prévia da pauta no caminho feliz. O insert condicional valida sessão aberta no banco e a existência da pauta só é consultada quando o insert não registra nenhuma linha.
 - A consulta de resultado usa `agenda_vote_total_buckets`, mantida transacionalmente no banco.
 - O cenário usa `constant-arrival-rate` para controlar throughput em votos por segundo.

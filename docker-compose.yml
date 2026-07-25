@@ -51,7 +51,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: cooperative_voting
       IDENTITY_HASH_PEPPER: local-docker-pepper-change-me
       USER_INFO_BASE_URL: http://user-info-mock:8080
-      SPRING_CACHE_TYPE: ${SPRING_CACHE_TYPE:-caffeine}
+      SPRING_CACHE_TYPE: ${SPRING_CACHE_TYPE:-redis}
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
       USER_INFO_CACHE_TTL: 5m
