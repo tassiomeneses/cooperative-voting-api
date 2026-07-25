@@ -42,7 +42,6 @@ import java.time.Instant;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -101,7 +100,7 @@ class MobileVotingScreenControllerTest {
 
     @Test
     void shouldReturnCreateAgendaFormScreen() throws Exception {
-        mockMvc.perform(get("/v1/mobile/pautas/nova"))
+        mockMvc.perform(post("/v1/mobile/pautas/nova"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.tipo").value("FORMULARIO"))
             .andExpect(jsonPath("$.titulo").value("Cadastrar pauta"))
@@ -182,7 +181,7 @@ class MobileVotingScreenControllerTest {
 
     @Test
     void shouldReturnVoteIdentificationFormScreen() throws Exception {
-        mockMvc.perform(get("/v1/mobile/pautas/{id}/voto/identificacao", AGENDA_ID))
+        mockMvc.perform(post("/v1/mobile/pautas/{id}/voto/identificacao", AGENDA_ID))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.tipo").value("FORMULARIO"))
             .andExpect(jsonPath("$.titulo").value("Identificar associado"))
@@ -251,7 +250,7 @@ class MobileVotingScreenControllerTest {
         );
         when(findVotingResultUseCase.execute(new FindVotingResultInput(AGENDA_ID))).thenReturn(output);
 
-        mockMvc.perform(get("/v1/mobile/pautas/{id}/resultado", AGENDA_ID))
+        mockMvc.perform(post("/v1/mobile/pautas/{id}/resultado", AGENDA_ID))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.tipo").value("FORMULARIO"))
             .andExpect(jsonPath("$.titulo").value("Resultado da votacao"))

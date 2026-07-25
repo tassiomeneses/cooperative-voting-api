@@ -26,21 +26,21 @@ Principais regras atendidas:
 Use este roteiro para validar exatamente o fluxo pedido no teste técnico:
 
 ```text
-1. GET  /v1/mobile/pautas/nova
+1. POST /v1/mobile/pautas/nova
    Retorna FORMULARIO para cadastrar pauta.
 
 2. POST /v1/mobile/pautas
    Body: titulo, descricao.
    Retorna FORMULARIO de confirmação com callback para abrir sessão.
 
-3. GET ou POST /v1/mobile/pautas/{id}/sessao/nova
+3. POST /v1/mobile/pautas/{id}/sessao/nova
    Retorna FORMULARIO para informar duração.
 
 4. POST /v1/mobile/pautas/{id}/sessao
    Body opcional: duracaoMinutos.
    Retorna FORMULARIO de confirmação com callback para votar.
 
-5. GET ou POST /v1/mobile/pautas/{id}/voto/identificacao
+5. POST /v1/mobile/pautas/{id}/voto/identificacao
    Retorna FORMULARIO para associadoId e cpf.
 
 6. POST /v1/mobile/pautas/{id}/voto/opcoes
@@ -51,7 +51,7 @@ Use este roteiro para validar exatamente o fluxo pedido no teste técnico:
    Body vem dentro do item escolhido em SELECAO.
    Registra voto.
 
-8. GET ou POST /v1/mobile/pautas/{id}/resultado
+8. POST /v1/mobile/pautas/{id}/resultado
    Retorna FORMULARIO com o resultado consolidado.
 ```
 
@@ -158,7 +158,7 @@ performance
 
 ```text
 1. App busca a tela de cadastro de pauta
-   GET /v1/mobile/pautas/nova
+   POST /v1/mobile/pautas/nova
    -> FORMULARIO com inputs titulo e descricao
 
 2. App aciona o botao Cadastrar
@@ -166,7 +166,7 @@ performance
    -> cadastra pauta e retorna tela de confirmacao
 
 3. App abre a tela de sessao
-   GET ou POST /v1/mobile/pautas/{id}/sessao/nova
+   POST /v1/mobile/pautas/{id}/sessao/nova
    -> FORMULARIO com input duracaoMinutos
 
 4. App aciona o botao Abrir sessao
@@ -174,7 +174,7 @@ performance
    -> abre sessao pelo tempo informado ou 1 minuto por default
 
 5. App abre a tela de identificacao do voto
-   GET ou POST /v1/mobile/pautas/{id}/voto/identificacao
+   POST /v1/mobile/pautas/{id}/voto/identificacao
    -> FORMULARIO com associadoId e cpf
 
 6. App aciona Continuar
@@ -195,7 +195,7 @@ performance
    PostgreSQL valida janela da sessão, unicidade por pauta + CPF hasheado e atualiza os totais
 
 11. App consulta resultado
-   GET ou POST /v1/mobile/pautas/{id}/resultado
+   POST /v1/mobile/pautas/{id}/resultado
    -> FORMULARIO com totalizacao
 ```
 
@@ -352,17 +352,18 @@ http://localhost:8080/v3/api-docs
 ### Contrato mobile do Anexo 1
 
 Esses endpoints retornam diretamente objetos de tela, sem o envelope `success/data`, porque o app mobile interpreta o JSON no formato definido pelo teste técnico.
+No contrato mobile, todos os callbacks de telas, botões e itens de seleção usam `POST`, conforme descrito no Anexo 1.
 
 | Método | Endpoint | Tipo de tela | Descrição |
 |---|---|---|---|
-| `GET` ou `POST` | `/v1/mobile/pautas/nova` | `FORMULARIO` | Tela para cadastrar pauta |
+| `POST` | `/v1/mobile/pautas/nova` | `FORMULARIO` | Tela para cadastrar pauta |
 | `POST` | `/v1/mobile/pautas` | `FORMULARIO` | Cadastra pauta e retorna tela de confirmação |
-| `GET` ou `POST` | `/v1/mobile/pautas/{id}/sessao/nova` | `FORMULARIO` | Tela para abrir sessão |
+| `POST` | `/v1/mobile/pautas/{id}/sessao/nova` | `FORMULARIO` | Tela para abrir sessão |
 | `POST` | `/v1/mobile/pautas/{id}/sessao` | `FORMULARIO` | Abre sessão e retorna confirmação |
-| `GET` ou `POST` | `/v1/mobile/pautas/{id}/voto/identificacao` | `FORMULARIO` | Tela para informar associado e CPF |
+| `POST` | `/v1/mobile/pautas/{id}/voto/identificacao` | `FORMULARIO` | Tela para informar associado e CPF |
 | `POST` | `/v1/mobile/pautas/{id}/voto/opcoes` | `SELECAO` | Tela com opções `Sim` e `Nao` |
 | `POST` | `/v1/mobile/votos` | `FORMULARIO` | Registra voto e retorna confirmação |
-| `GET` ou `POST` | `/v1/mobile/pautas/{id}/resultado` | `FORMULARIO` | Tela com resultado da votação |
+| `POST` | `/v1/mobile/pautas/{id}/resultado` | `FORMULARIO` | Tela com resultado da votação |
 
 Tipos de item suportados pelo contrato mobile:
 
@@ -391,7 +392,7 @@ Esses endpoints não substituem o contrato mobile do Anexo 1. Eles foram mantido
 ### Buscar tela de cadastro de pauta
 
 ```bash
-curl http://localhost:8080/v1/mobile/pautas/nova
+curl -X POST http://localhost:8080/v1/mobile/pautas/nova
 ```
 
 Resposta:
@@ -817,7 +818,7 @@ Para produção com grande volume:
 
 - Rodar múltiplas réplicas da API atrás de load balancer.
 - Dimensionar pool de conexões conforme réplicas e capacidade do PostgreSQL.
-- Monitorar latência de `POST /v1/mobile/votos` e `GET /v1/mobile/pautas/{id}/resultado`.
+- Monitorar latência de `POST /v1/mobile/votos` e `POST /v1/mobile/pautas/{id}/resultado`.
 - Considerar read replicas para consultas de resultado, se consistência eventual for aceitável.
 - Usar Redis para cache distribuído quando houver múltiplas réplicas e alto reaproveitamento de CPFs.
 - Separar métricas por endpoint, status HTTP e integração externa.

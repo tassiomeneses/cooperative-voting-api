@@ -29,7 +29,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -88,7 +87,7 @@ class MobileVotingApiIntegrationTest extends PostgreSqlContainerSupport {
     void shouldExecuteCompleteVotingFlowUsingOnlyMobileContract() throws Exception {
         stubAbleToVote();
 
-        mockMvc.perform(get("/v1/mobile/pautas/nova"))
+        mockMvc.perform(post("/v1/mobile/pautas/nova"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.tipo").value("FORMULARIO"))
             .andExpect(jsonPath("$.itens[0].tipo").value("INPUT_TEXTO"))
@@ -97,7 +96,7 @@ class MobileVotingApiIntegrationTest extends PostgreSqlContainerSupport {
         String agendaId = createAgendaUsingMobileContract();
         openVotingSessionUsingMobileContract(agendaId);
 
-        mockMvc.perform(get("/v1/mobile/pautas/{id}/voto/identificacao", agendaId))
+        mockMvc.perform(post("/v1/mobile/pautas/{id}/voto/identificacao", agendaId))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.tipo").value("FORMULARIO"))
             .andExpect(jsonPath("$.botaoOk.url").value("/v1/mobile/pautas/" + agendaId + "/voto/opcoes"));
@@ -112,7 +111,7 @@ class MobileVotingApiIntegrationTest extends PostgreSqlContainerSupport {
         registerVoteUsingMobileContract(secondVoteBody)
             .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/v1/mobile/pautas/{id}/resultado", agendaId))
+        mockMvc.perform(post("/v1/mobile/pautas/{id}/resultado", agendaId))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.tipo").value("FORMULARIO"))
             .andExpect(jsonPath("$.titulo").value("Resultado da votacao"))

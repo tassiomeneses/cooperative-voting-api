@@ -51,8 +51,9 @@ const voteStatusOther = new Counter('vote_status_other');
 export function setup() {
   waitForApi();
 
-  const newAgendaScreenResponse = http.get(
+  const newAgendaScreenResponse = http.post(
     `${BASE_URL}/v1/mobile/pautas/nova`,
+    null,
     requestParams('screen-new-agenda')
   );
   assertStatus(newAgendaScreenResponse, 200, 'new agenda screen');
@@ -71,8 +72,9 @@ export function setup() {
   assertScreenType(createAgendaResponse, 'FORMULARIO', 'create agenda');
   const agendaId = extractAgendaIdFromCallback(JSON.parse(createAgendaResponse.body).botaoOk.url);
 
-  const openSessionScreenResponse = http.get(
+  const openSessionScreenResponse = http.post(
     `${BASE_URL}/v1/mobile/pautas/${agendaId}/sessao/nova`,
+    null,
     requestParams('screen-open-session')
   );
   assertStatus(openSessionScreenResponse, 200, 'open voting session screen');
@@ -145,8 +147,9 @@ function countVoteStatus(status) {
 }
 
 export function teardown(data) {
-  const resultResponse = http.get(
+  const resultResponse = http.post(
     `${BASE_URL}/v1/mobile/pautas/${data.agendaId}/resultado`,
+    null,
     requestParams('voting-result')
   );
 

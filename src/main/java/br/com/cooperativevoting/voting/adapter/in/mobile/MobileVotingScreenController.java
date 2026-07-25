@@ -26,12 +26,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
@@ -76,7 +74,7 @@ public class MobileVotingScreenController {
         this.urlBuilder = urlBuilder;
     }
 
-    @RequestMapping(value = "/pautas/nova", method = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping("/pautas/nova")
     @Operation(summary = "Tela para cadastrar pauta", description = "Retorna uma tela FORMULARIO conforme o Anexo 1.")
     public MobileScreenResponse newAgendaScreen() {
         return form(
@@ -107,7 +105,7 @@ public class MobileVotingScreenController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @RequestMapping(value = "/pautas/{id}/sessao/nova", method = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping("/pautas/{id}/sessao/nova")
     @Operation(summary = "Tela para abrir sessao", description = "Retorna formulario de duracao da sessao. O valor padrao de negocio e 1 minuto.")
     public MobileScreenResponse newVotingSessionScreen(@PathVariable String id) {
         return form(
@@ -141,7 +139,7 @@ public class MobileVotingScreenController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @RequestMapping(value = "/pautas/{id}/voto/identificacao", method = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping("/pautas/{id}/voto/identificacao")
     @Operation(summary = "Tela para identificar associado", description = "Coleta associado e CPF antes da selecao SIM/NAO.")
     public MobileScreenResponse voteIdentificationScreen(@PathVariable String id) {
         return form(
@@ -187,7 +185,7 @@ public class MobileVotingScreenController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @RequestMapping(value = "/pautas/{id}/resultado", method = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping("/pautas/{id}/resultado")
     @Operation(summary = "Tela de resultado", description = "Retorna o resultado da pauta como tela FORMULARIO.")
     public MobileScreenResponse votingResultScreen(@PathVariable String id) {
         FindVotingResultOutput output = findVotingResultUseCase.execute(votingResultRestMapper.toInput(id));

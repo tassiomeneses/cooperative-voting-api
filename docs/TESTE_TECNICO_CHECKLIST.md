@@ -17,6 +17,7 @@ Este arquivo confere o projeto contra o enunciado da avaliacao tecnica.
 | Persistir pautas e votos | OK | PostgreSQL + JPA + Flyway |
 | Nao perder dados com restart | OK | Dados persistidos em PostgreSQL |
 | Comunicacao backend/mobile via JSON de tela | OK | Adapter `/v1/mobile` |
+| Callbacks mobile por `POST` | OK | Todos os endpoints `/v1/mobile` usam `POST`, conforme Anexo 1 |
 | Tela `FORMULARIO` | OK | `/v1/mobile/pautas/nova`, `/sessao/nova`, `/voto/identificacao`, `/resultado` |
 | Tela `SELECAO` | OK | `/v1/mobile/pautas/{id}/voto/opcoes` |
 | Campos `TEXTO`, `INPUT_TEXTO`, `INPUT_NUMERO`, `INPUT_DATA` | OK | DTOs mobile e teste `MobileScreenResponseTest` |
